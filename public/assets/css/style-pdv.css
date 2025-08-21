@@ -1,0 +1,175 @@
+:root {
+    --bg: #edf1f7;
+    --fg: #333;
+    --accent: #4f6ef7;
+    --accent-hover: #3d5ae0;
+    --danger: #e74c3c;
+    --danger-hover: #c0392b;
+    --radius: 10px;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --card-bg: var(--card-bg, #fff);
+}
+
+.container-app {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+main.app-content {
+    flex: 1;
+    padding: 1rem;
+    background-color: #f1f2f7;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+#searchInput:focus {
+    outline: 2px solid var(--accent);
+    border-color: var(--accent);
+}
+
+.container-fluid.py-4 {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    max-width: 1400px;
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.05);
+    margin: 2rem auto 1rem;
+    min-height: calc(80vh - 1rem);
+    display: flex;
+    flex-direction: column;
+}
+
+.container-fluid.py-4 .footer {
+    margin-top: auto; /* empurra pra baixo */
+    padding: 1rem 0;
+    text-align: center;
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.container-fluid.py-4 .mb-4 {
+    position: relative;
+}
+
+#buscarProduto {
+    border: none;
+    border-radius: 0.75rem;
+    padding-left: 1.5rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.08);
+    height: 3rem;
+}
+
+#buscarProduto:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.pdv-products .card {
+    border: none;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.pdv-products .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.alert-sem-produtos {
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    padding: 1rem;
+}
+
+.col-md-4.col-lg-3 .card.shadow-sm {
+    border-left: 0.25rem solid #0d6efd;
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.col-md-4.col-lg-3 .card.shadow-sm:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1);
+}
+
+#btnPagamento {
+    flex: 1;
+}
+
+.btn-cancelar {
+    flex: 1;
+}
+
+@media (max-width: 767px) {
+    .container-fluid.py-4 {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+
+    .pdv-products .card {
+        margin-bottom: 1rem;
+    }
+}
+
+.btn {
+    flex: 1;
+    padding: 0.8rem;
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: none 0.2s ease;
+}
+
+.btn-finalizar {
+    background: var(--accent);
+}
+
+.btn-finalizar:hover {
+    background: var(--accent-hover);
+}
+
+.btn-cancelar {
+    background: var(--danger);
+}
+
+.btn-cancelar:hover {
+    background: var(--danger-hover);
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    font-size: 0.95rem;
+}
+
+@media (max-width: 1024px) {
+    .pdv-main {
+        grid-template-columns: 1fr;
+    }
+}
+
+.modal-footer {
+    border-top: none !important;
+}
