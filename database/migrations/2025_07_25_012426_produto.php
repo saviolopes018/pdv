@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('produto');
             $table->string('valorProduto');
             $table->foreignId('categoria_id');
-            $table->string('arquivo');
+            $table->string('arquivo')->nullable();
             $table->string('barCode')->nullable();
             $table->timestamps();
         });

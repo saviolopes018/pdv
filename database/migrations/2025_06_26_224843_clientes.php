@@ -24,9 +24,9 @@ return new class extends Migration
             $table->string('bairro');
             $table->string('cidade');
             $table->string('estado');
-            $table->string('cnpj');
-            $table->string('razaoSocial');
-            $table->string('nomeFantasia');
+            $table->string('cnpj')->nullable();
+            $table->string('razaoSocial')->nullable();
+            $table->string('nomeFantasia')->nullable();
             $table->integer('status')->default(1);
             $table->timestamps();
         });

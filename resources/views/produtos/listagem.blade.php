@@ -17,7 +17,7 @@
             @if (session('message-success'))
                 <div class="sufee-alert alert with-close alert-success alert-dismissible fade show">
                     <span class="badge badge-pill badge-success">Sucesso</span>
-                    {{ session('message-success') }}
+                    {{ session('message-success') }} <a href="{{ route('estoque.listagem') }}" style="color: #155724; font-weight: 500; text-decoration: none;">Deseja dar entrada no estoque?</a>
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>

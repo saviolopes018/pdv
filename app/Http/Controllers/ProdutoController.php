@@ -33,7 +33,7 @@ class ProdutoController extends Controller
             'categoria_id' => 'required',
         ]);
 
-        $path;
+        $path = null;
 
         if ($request->hasFile('arquivo')) {
             $path = $request->file('arquivo')->store('uploads', 'public');
@@ -51,7 +51,7 @@ class ProdutoController extends Controller
             return back()->with('error', 'Erro ao adicionar produto!');
         }
 
-        return redirect()->route('produto.listagem')->with('message-success', 'Produto adicionado!');
+        return redirect()->route('produto.listagem')->with('message-success', 'Produto adicionado.');
     }
 
     public function atualizar(Request $request, $idProduto) {

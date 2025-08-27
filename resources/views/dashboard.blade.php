@@ -64,7 +64,7 @@
     {{-- <div class="col-lg-6">
         <div class="card">
             <div class="card-body">
-                <h4 class="mb-3">Despesas por Setor </h4>
+                <h4 class="mb-3">Vendas por Categoria </h4>
                 <div id="chart-pie">
                 </div>
             </div>

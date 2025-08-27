@@ -53,6 +53,8 @@
                                     <td>
                                         @if ($lancamento->arquivo)
                                             <a class="btn btn-warning btn-sm btn-icon-actions" href="{{ Storage::url($lancamento->arquivo) }}" target="_blank" title="Ver Arquivo"><i class="fa fa-magnifying-glass"></i></a>
+                                        @else
+                                        -
                                         @endif
                                     </td>
                                 </tr>

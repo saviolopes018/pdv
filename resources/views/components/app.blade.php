@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Gestão Financeira</title>
+    <title>Gestão - PDV</title>
     <meta name="description" content="Clinicas">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
     {{-- <link rel="stylesheet" href="{{ asset('assets/css/font-awesome.min.css') }}"> --}}
     <link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/flag-icon.min.css') }}">
+    {{-- <link rel="stylesheet" href="{{ asset('assets/css/flag-icon.min.css') }}"> --}}
     <link rel="stylesheet" href="{{ asset('assets/css/cs-skin-elastic.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/jqvmap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/dataTables.bootstrap4.min.css') }}">
@@ -122,7 +122,7 @@
                         <div class="user-menu dropdown-menu">
                             <a class="nav-link" href="#"><i class="fa fa-user"></i> Minha conta</a>
 
-                            <a class="nav-link" href="{{ route('pdv') }}" target="_blank"><i class="fa-solid fa-right-to-bracket"></i> PDV</a>
+                            <a class="nav-link" href="{{ route('pdv') }}"><i class="fa-solid fa-right-to-bracket"></i> PDV</a>
 
                             {{-- <a class="nav-link" href="#"><i class="fa fa-cog"></i> Configurações</a> --}}
 
@@ -166,33 +166,6 @@
     <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('assets/js/main.js') }}"></script>
 
-
-    <script src="{{ asset('assets/js/Chart.bundle.min.js') }}"></script>
-    <script src="{{ asset('assets/js/chartjs-init.js') }}"></script>
-    <script src="{{ asset('assets/js/dashboard.js') }}"></script>
-    <script src="{{ asset('assets/js/widgets.js') }}"></script>
-    <script src="{{ asset('assets/js/jquery.vmap.min.js') }}"></script>
-    <script src="{{ asset('assets/js/jquery.vmap.sampledata.js') }}"></script>
-    <script src="{{ asset('assets/js/jquery.vmap.world.js') }}"></script>
-    <script>
-        (function($) {
-            "use strict";
-
-            jQuery('#vmap').vectorMap({
-                map: 'world_en',
-                backgroundColor: null,
-                color: '#ffffff',
-                hoverOpacity: 0.7,
-                selectedColor: '#1de9b6',
-                enableZoom: true,
-                showTooltip: true,
-                values: sample_data,
-                scaleColors: ['#1de9b6', '#03a9f5'],
-                normalizeFunction: 'polynomial'
-            });
-        })(jQuery);
-    </script>
-
     <script>
         var options = {
             series: [44, 55, 13, 43, 22, 39],
@@ -235,21 +208,21 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
-        $('#alertCamposEmBranco').hide();
-        document.getElementById('valorMinimo').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é número
-            value = (value / 100).toFixed(2) + '';
-            value = value.replace(".", ",");
-            value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
-            e.target.value = value;
-        });
-        document.getElementById('valorMaximo').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é número
-            value = (value / 100).toFixed(2) + '';
-            value = value.replace(".", ",");
-            value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
-            e.target.value = value;
-        });
+        // $('#alertCamposEmBranco').hide();
+        // document.getElementById('valorMinimo').addEventListener('input', function(e) {
+        //     let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é número
+        //     value = (value / 100).toFixed(2) + '';
+        //     value = value.replace(".", ",");
+        //     value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+        //     e.target.value = value;
+        // });
+        // document.getElementById('valorMaximo').addEventListener('input', function(e) {
+        //     let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é número
+        //     value = (value / 100).toFixed(2) + '';
+        //     value = value.replace(".", ",");
+        //     value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+        //     e.target.value = value;
+        // });
     </script>
     @stack('scripts')
 </body>

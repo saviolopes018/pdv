@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Carbon\Carbon;
 
-
 class Venda extends Model
 {
     use HasFactory, Notifiable;
@@ -16,28 +15,25 @@ class Venda extends Model
 
     protected $fillable = [
         'produto_id',
+        'venda_pagamento_id',
         'quantidade',
+        'valorUnidade',
         'valorTotal',
-        'forma_pagamento_id_primaria',
-        'valorPrimario',
-        'pagamentoDividido',
-        'forma_pagamento_id_secundaria',
-        'valorSecundario',
         'dataVenda'
     ];
 
     public function countValorEmVendaHoje() {
-        $hoje = Carbon::now();
+        $hoje = Carbon::now('America/Sao_Paulo');
         $dataFormatada = $hoje->format('Y-m-d');
         return DB::table('venda')
             ->select('venda.*')
             ->where('venda.dataVenda', $dataFormatada)
-            ->sum('valorPrimario');
+            ->sum('valorTotal');
     }
 
     public function valorVendasPorMes() {
         return DB::table('venda')
-            ->select(DB::raw("DATE_FORMAT(dataVenda, '%m') as mes"), DB::raw('SUM(valorPrimario) as valorTotalVendaMes'))
+            ->select(DB::raw("DATE_FORMAT(dataVenda, '%m') as mes"), DB::raw('SUM(valorTotal) as valorTotalVendaMes'))
             ->groupBy('mes')
             ->orderBy('mes', 'asc')
             ->get();

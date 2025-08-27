@@ -5,7 +5,8 @@
 @section('content')
     <div class="container-fluid py-4">
         <div class="mb-4">
-            <input type="text" class="form-control" placeholder="Buscar produto..." id="buscarProduto" autofocus>
+            <input type="text" class="form-control" placeholder="Buscar produto..." id="buscarProduto" autofocus
+                autocomplete="off">
         </div>
         <div class="row g-4">
             <div class="col-md-8 col-lg-9">
@@ -44,7 +45,7 @@
             </div>
         </div>
         <footer class="footer">
-            Desenvolvido com 💜 pela B8 Lab
+            <a href="https://b8lab.com.br/" style="text-decoration: none; color: darkgrey" target="_blank">Desenvolvido com 💜 pela B8 Lab</a>
         </footer>
     </div>
 
@@ -74,8 +75,8 @@
                         <label for="paymentMethod" class="form-label">Forma de Pagamento</label>
                         <select id="paymentMethod" class="form-select">
                             <option value="0">Selecione</option>
-                            @foreach($listFormasPagamento as $forma)
-                            <option value="{{ $forma->id }}">{{ $forma->descricao }}</option>
+                            @foreach ($listFormasPagamento as $forma)
+                                <option value="{{ $forma->id }}">{{ $forma->descricao }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -84,8 +85,8 @@
                         <label for="paymentMethod2" class="form-label">Segunda Forma de Pagamento</label>
                         <select id="paymentMethod2" class="form-select">
                             <option value="0">Selecione</option>
-                            @foreach($listFormasPagamento as $forma)
-                            <option value="{{ $forma->id }}">{{ $forma->descricao }}</option>
+                            @foreach ($listFormasPagamento as $forma)
+                                <option value="{{ $forma->id }}">{{ $forma->descricao }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -101,8 +102,10 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar <i class="fa fa-close"></i></button>
-                        <button type="button" class="btn btn-success" id="btnFinalizeSale">Finalizar <i class="fa fa-check"></i></button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar <i
+                                class="fa fa-close"></i></button>
+                        <button type="button" class="btn btn-success" id="btnFinalizeSale">Finalizar <i
+                                class="fa fa-check"></i></button>
                     </div>
                 </div>
             </div>
@@ -152,10 +155,18 @@
                 $('.alert-venda-finalizada').hide();
 
                 // Quando o scanner “digitar” e emular ENTER:
-                input.addEventListener('keydown', e => {
+                input.addEventListener('keyup', e => {
+                    $('.alert-venda-finalizada').hide();
+                    $('.alert-sem-produtos').hide();
                     if (e.key === 'Enter') {
                         const search = input.value.trim();
-                        if (search) buscarProduto(search);
+                        if (search) {
+                            buscarProduto(search);
+                        } else {
+                            $('.pdv-products.row .pdv-product[name="produtos"]').closest('.col').remove();
+                        }
+                    }else if(e.key === 'Backspace'){
+                        $('.pdv-products.row .pdv-product[name="produtos"]').closest('.col').remove();
                     }
                 });
 
@@ -186,10 +197,6 @@
                             if (data.length === 0) {
                                 // só adiciona UMA vez
                                 if (data.length === 0) {
-                                    //     $('.pdv-products').append(`
-                            // <div class="not-found">
-                            // Produto não foi encontrado
-                            // </div>`);
 
                                     $('.alert-sem-produtos').show();
                                 }
@@ -293,7 +300,6 @@
 
             function loadCart() {
                 $.get('/pdv', function(json) {
-                    console.log(json)
                     const $list = $('.pdv-cart-items').empty(); // limpa HTML antigo
 
                     // Renderiza cada item a partir do JSON
@@ -400,39 +406,60 @@
 
                 // 4) Finalizar venda: lê os valores e métodos
                 $('#btnFinalizeSale').on('click', function() {
-                if (!$('.pdv-cart-items .cart-item').length) {
-                    return showAlert('Selecione ao menos um produto antes de pagar!', 'warning');
-                }
-
-                const method1 = $('#paymentMethod').val();
-                const amount1 = parseFloat($('#paymentAmount1').val()) || parseFloat(
-                    $('#paymentModalTotal').text()
-                    .replace(/[R$\s]/g, '')
-                    .replace(',', '.')
-                ) || 0;
-
-                let methods = [method1], amounts = [amount1];
-
-                if ($('#splitPayment').is(':checked')) {
-                    const method2 = $('#paymentMethod2').val();
-                    const amount2 = parseFloat($('#paymentAmount2').val()) || 0;
-                    methods.push(method2);
-                    amounts.push(amount2);
-                }
-
-                // const rows = $('#tableListProdutos tbody tr td');
-                const itens = $('.tableListProdutos tbody tr td');
-                console.log('itens', itens)
-
-                // Exemplo de envio ao servidor (você pode adaptar conforme a sua API)
-                $.post('/cart/finalize', { methods, amounts, _token: "{{ csrf_token() }}" })
-                    .done(function(json) {
-                    if (json.success) {
-                        paymentModal.hide();
-                        loadCart();
-                        $('.alert-venda-finalizada').show();
+                    if (!$('.pdv-cart-items .cart-item').length) {
+                        return showAlert('Selecione ao menos um produto antes de pagar!', 'warning');
                     }
-                    });
+
+                    const method1 = $('#paymentMethod').val();
+                    const amount1 = parseFloat($('#paymentAmount1').val()) || parseFloat(
+                        $('#paymentModalTotal').text()
+                        .replace(/[R$\s]/g, '')
+                        .replace(',', '.')
+                    ) || 0;
+
+                    let methods = [method1],
+                        amounts = [amount1],
+                        splitPayment = false;
+
+                    if ($('#splitPayment').is(':checked')) {
+                        splitPayment = true;
+                        methods = [];
+                        amounts = [];
+
+                        const method1 = $('#paymentMethod').val();
+                        const amount1 = parseFloat(
+                            $('#paymentAmount1').val()
+                            .replace(/[R$\s]/g, '')
+                            .replace(',', '.')
+                        ) || 0;
+
+                        const method2 = $('#paymentMethod2').val();
+                        const amount2 = parseFloat($('#paymentAmount2').val()
+                            .replace(/[R$\s]/g, '')
+                            .replace(',', '.')
+                        ) || 0;
+
+                        methods.push(method1, method2);
+                        amounts.push(amount1, amount2);
+                    }
+
+                    const itens = $('.tableListProdutos tbody tr td');
+
+                    // Exemplo de envio ao servidor (você pode adaptar conforme a sua API)
+                    $.post('/cart/finalize', {
+                            methods,
+                            amounts,
+                            splitPayment,
+                            _token: "{{ csrf_token() }}"
+                        })
+                        .done(function(json) {
+                            if (json.success) {
+                                paymentModal.hide();
+                                loadCart();
+                                $('.pdv-products.row .pdv-product[name="produtos"]').closest('.col').remove();
+                                $('.alert-venda-finalizada').show();
+                            }
+                        });
                 });
 
                 function showAlert(msg, type = 'info') {
@@ -489,7 +516,6 @@
                         .replace(',', '.')
                     ) || 0;
                     const val2 = (total - val1).toFixed(2);
-                    console.log(val1)
 
                     // 7) Formata val2 igual
                     let v2 = val2.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -526,7 +552,6 @@
 
             document.querySelectorAll('.pdv-product').forEach(item => {
                 item.addEventListener('click', () => {
-                    console.log(item);
                     const name = item.dataset.name;
                     const price = parseFloat(item.dataset.price);
 

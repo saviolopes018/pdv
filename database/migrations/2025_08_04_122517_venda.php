@@ -14,12 +14,10 @@ return new class extends Migration
         Schema::create('venda', function (Blueprint $table) {
             $table->id();
             $table->foreignId('produto_id');
+            $table->foreignId('venda_pagamento_id');
             $table->integer('quantidade');
-            $table->integer('forma_pagamento_id_primaria');
-            $table->string('valorPrimario');
-            $table->integer('pagamentoDividido')->nullable();
-            $table->integer('forma_pagamento_id_secundaria')->nullable();
-            $table->string('valorSecundario')->nullable();
+            $table->string('valorUnidade');
+            $table->string('valorTotal');
             $table->date('dataVenda');
             $table->timestamps();
         });

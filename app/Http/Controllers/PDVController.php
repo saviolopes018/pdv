@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Produto;
 use App\Models\FormaPagamento;
 use App\Models\Venda;
+use App\Models\VendaPagamento;
 use Carbon\Carbon;
 
 class PDVController extends Controller
@@ -24,7 +25,6 @@ class PDVController extends Controller
             ]);
         }
 
-        // Requisição normal: retorna a view com as mesmas variáveis
         return view('pdv', [
             'items' => array_values($cart),
             'total' => $total,
@@ -41,7 +41,6 @@ class PDVController extends Controller
 
         $cart = $request->session()->get('cart', []);
 
-        // se já existir, só incrementa quantidade
         if (isset($cart[$id])) {
             $cart[$id]['quantity'] += $quantity;
             $cart[$id]['subtotal'] = $cart[$id]['quantity'] * $price;
@@ -82,10 +81,7 @@ class PDVController extends Controller
 
     public function clear(Request $request)
     {
-        // Remove a chave 'cart' da sessão
         $request->session()->forget('cart');
-
-        // Ou, alternativamente: $request->session()->put('cart', []);
 
         return response()->json([
             'success' => true,
@@ -96,19 +92,37 @@ class PDVController extends Controller
     public function finalize(Request $request)
     {
         $cart = $request->session()->get('cart');
-        foreach($cart as $c) {
-            Venda::create([
-                'produto_id' => $c['id'],
-                'quantidade' => $c['quantity'],
+        $splitPayment = filter_var($request->all()['splitPayment'], FILTER_VALIDATE_BOOLEAN);
+        $vendaPagamento;
+        if($splitPayment){
+            $vendaPagamento = VendaPagamento::create([
                 'forma_pagamento_id_primaria' => $request->all()['methods'][0],
-                'valorPrimario' => $c['price'],
-                'dataVenda' => new Carbon()
+                'valor_venda_primaria' => $request->all()['amounts'][0],
+                'pagamentoDividido' => $request->all()['splitPayment'],
+                'forma_pagamento_id_secundaria' => $request->all()['methods'][1],
+                'valor_venda_secundaria' => $request->all()['amounts'][1],
+                'pagamentoDividido' => $splitPayment
+            ]);
+         }else {
+            $vendaPagamento = VendaPagamento::create([
+                'forma_pagamento_id_primaria' => $request->all()['methods'][0],
+                'valor_venda_primaria' => $request->all()['amounts'][0],
+                'pagamentoDividido' => $splitPayment
             ]);
         }
-        // Remove a chave 'cart' da sessão
-        $request->session()->forget('cart');
+        foreach($cart as $c) {
+            $venda = Venda::create([
+                'produto_id' => $c['id'],
+                'venda_pagamento_id' => $vendaPagamento->id,
+                'quantidade' => $c['quantity'],
+                'valorUnidade' => $c['price'],
+                'valorTotal' => $c['subtotal'],
+                'dataVenda' => new Carbon()
+            ]);
 
-        // Ou, alternativamente: $request->session()->put('cart', []);
+        }
+
+        $request->session()->forget('cart');
 
         return response()->json([
             'success' => true,

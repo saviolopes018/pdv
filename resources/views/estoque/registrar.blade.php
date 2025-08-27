@@ -3,11 +3,11 @@
 @section('content')
     <div class="content animated fadeIn">
         <div class="col-md-12 mt-3">
-            <h2 class="pb-2 display-5">Financeiro</h2>
+            <h2 class="pb-2 display-5">Estoque</h2>
         </div>
         <div class="col-md-12 bottom-pull-right">
             <div class="d-flex justify-content-end">
-                <a href="{{ route('financeiro.listagem') }}" class="btn btn-secondary"><i class="fa fa-arrow-left"></i>&nbsp;
+                <a href="{{ route('estoque.listagem') }}" class="btn btn-secondary"><i class="fa fa-arrow-left"></i>&nbsp;
                     Voltar</a>
             </div>
         </div>
