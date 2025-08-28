@@ -41,8 +41,7 @@
             </div>
         @endif
         <div class="text-center login-box">
-            <h5 class="text-primary font-weight-light">SUA <span class="font-weight-bold text-primary">LOGO AQUI</span>
-            </h5>
+            <img src="{{ asset('assets/img/ciro.svg') }}" class="logo mb-4"/>
             <form method="POST" action="{{ route('login') }}">
                 @csrf
                 <div class="form-group">
@@ -51,7 +50,7 @@
                 <div class="form-group">
                     <input type="password" name="password" class="form-control" placeholder="Senha">
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">ENTRAR</button>
+                <button type="submit" class="btn btn-primary btn-block btn-entrar">Entrar</button>
             </form>
         </div>
     </div>

@@ -44,8 +44,8 @@
                     aria-controls="main-menu" aria-expanded="false" aria-label="Toggle navigation">
                     <i class="fa fa-bars"></i>
                 </button>
-                <a class="navbar-brand" href="{{ route('dashboard') }}">SUA LOGO</a>
-                <a class="navbar-brand hidden" href="{{ route('dashboard') }}"></a>
+                <a class="navbar-brand" href="{{ route('dashboard') }}"><img src="{{ asset('assets/img/ciro-gestao.svg') }}"/></a>
+                <a class="navbar-brand hidden" href="{{ route('dashboard') }}"><img src="{{ asset('assets/img/ciro-gestao.svg') }}"/></a>
             </div>
 
             <div id="main-menu" class="main-menu collapse navbar-collapse">

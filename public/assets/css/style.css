@@ -4702,7 +4702,9 @@ aside.left-panel {
     font-weight: 600;
 }
 .navbar .navbar-brand img {
-    max-width: 160px;
+    max-width: 200px;
+    margin-top: -35px;
+    margin-bottom: -43px;
 }
 .navbar .navbar-brand.hidden {
     display: none;
