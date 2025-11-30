@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('venda_pagamento', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('venda_id');
             $table->integer('forma_pagamento_id_primaria');
             $table->string('valor_venda_primaria');
             $table->integer('pagamentoDividido')->nullable();

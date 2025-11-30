@@ -46,4 +46,43 @@ class FinanceiroController extends Controller
 
         return redirect()->route('financeiro.listagem')->with('message-success', 'Lançamento realizado com sucesso!');
     }
+
+    public function listagemContasPagar() {
+        return view('financeiro.contas-pagar.listagem');
+    }
+
+    public function registrarContasPagar() {
+        return view('financeiro.contas-pagar.registrar');
+    }
+
+    public function salvarContasPagar(Request $request) {
+        $request->validate([
+            'descricao' => 'required',
+            'valor' => 'required',
+            'dataVencimento' => 'required',
+        ]);
+
+        $gastosFixos = GastosFixos::create([
+            'descricao' => $request->descricao,
+            'valor' => str_replace(['.', ','], ['', '.'], $request->valor),
+            'dataVencimento' => $request->dataVencimento
+        ]);
+
+        if(!$gastosFixos) {
+            return back()->with('error', 'Erro ao realizar registro de contas a pagar!');
+        }
+
+        return redirect()->route('financeiro.contas-pagar.listagem')->with('message-success', 'Contas a pagar registrada!');
+    }
+
+    public function listagemContasReceber() {
+        return view('financeiro.contas-receber.listagem');
+    }
+
+    public function registrarContasReceber() {
+        return view('financeiro.contas-receber.registrar');
+    }
+
+    public function salvarContasReceber(Request $request) {
+    }
 }

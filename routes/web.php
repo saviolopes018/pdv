@@ -39,17 +39,18 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/clientes/inserir', [ClienteController::class, 'salvar'])->name('clientes.inserir');
     Route::put('/clientes/atualizar/{idCliente}', [ClienteController::class, 'atualizar'])->name('clientes.atualizar');
 
-    //Categorias
-    Route::get('/categoria/listagem', [CategoriaController::class, 'listagem'])->name('categoria.listagem');
-    Route::get('/categoria/adicionar', [CategoriaController::class, 'adicionar'])->name('categoria.adicionar');
-    Route::get('/categoria/editar/{idCategoria}', [CategoriaController::class, 'editar'])->name('categoria.editar');
-    Route::post('/categoria/salvar', [CategoriaController::class, 'salvar'])->name('categoria.salvar');
-    Route::put('/categoria/atualizar/{id}', [CategoriaController::class, 'atualizar'])->name('categoria.atualizar');
-
     //Financeiro
     Route::get('/financeiro/listagem', [FinanceiroController::class, 'listagem'])->name('financeiro.listagem');
     Route::get('/financeiro/registrar', [FinanceiroController::class, 'registrar'])->name('financeiro.registrar');
     Route::post('/financeiro/salvar', [FinanceiroController::class, 'salvar'])->name('financeiro.salvar');
+
+    Route::get('/financeiro/contas-pagar/listagem', [FinanceiroController::class, 'listagemContasPagar'])->name('financeiro.contas-pagar.listagem');
+    Route::get('/financeiro/contas-pagar/registrar', [FinanceiroController::class, 'registrarContasPagar'])->name('financeiro.contas-pagar.registrar');
+    Route::post('/financeiro/contas-pagar/salvar', [FinanceiroController::class, 'salvarContasPagar'])->name('financeiro.contas-pagar.salvar');
+
+    Route::get('/financeiro/contas-receber/listagem', [FinanceiroController::class, 'listagemContasReceber'])->name('financeiro.contas-receber.listagem');
+    Route::get('/financeiro/contas-receber/registrar', [FinanceiroController::class, 'registrarContasReceber'])->name('financeiro.contas-receber.registrar');
+    Route::post('/financeiro/contas-receber/salvar', [FinanceiroController::class, 'salvarContasReceber'])->name('financeiro.contas-receber.salvar');
 
     Route::get('/email', [EnviarEmailController::class, 'view'])->name('email');
     Route::post('/email/enviar', [EnviarEmailController::class, 'enviar'])->name('email.enviar');

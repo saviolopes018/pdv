@@ -6,15 +6,15 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('categoria', function (Blueprint $table) {
+        Schema::create('contas_pagar', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('fornecedor_id');
             $table->string('descricao');
-            $table->integer('status')->default(1);
+            $table->string('valor');
+            $table->date('dataVencimento');
+            $table->integer('pago')->default(0);
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('categoria');
+        Schema::dropIfExists('contas_pagar');
     }
 };

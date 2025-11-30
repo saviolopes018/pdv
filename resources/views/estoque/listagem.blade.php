@@ -24,9 +24,6 @@
                 </div>
             @endif
             <div class="card">
-                <div class="card-header">
-                    <strong class="card-title">#</strong>
-                </div>
                 <div class="card-body">
                     <table id="bootstrap-data-table-export" class="table table-bordered">
                         <thead>

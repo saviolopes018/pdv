@@ -26,4 +26,16 @@ class Estoque extends Model
             ->select('estoque.*', 'produtos.produto as descricaoProduto')
             ->get();
     }
+
+    public function getTotalEstoqueByProduto($produtoId) {
+        return DB::table('estoque')
+            ->where('produto_id', $produtoId)
+            ->sum('quantidade');
+    }
+
+    public function getEstoqueByProduto($produtoId) {
+        return DB::table('estoque')
+            ->where('produto_id', $produtoId)
+            ->get()[0];
+    }
 }

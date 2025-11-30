@@ -3,13 +3,13 @@
 @section('content')
     <div class="content animated fadeIn">
         <div class="col-md-12 mt-3">
-            <h2 class="pb-2 display-5">Categorias</h2>
+            <h2 class="pb-2 display-5">Contas a receber</h2>
         </div>
 
         <div class="col-md-12">
             <div class="d-flex justify-content-end bottom-pull-right">
-                <a href="{{ route('categoria.adicionar') }}" class="btn btn-primary"><i class="fa fa-plus"></i>&nbsp;
-                    Adicionar</a>
+                <a href="{{ route('financeiro.contas-receber.registrar') }}" class="btn btn-primary"><i class="fa fa-check"></i>&nbsp;
+                    Registrar</a>
             </div>
         </div>
         <div class="col-md-12">
@@ -24,20 +24,18 @@
             @endif
             <div class="card">
                 <div class="card-body">
-                    <table id="bootstrap-data-table-export" class="table table-striped table-bordered">
+                    <table id="bootstrap-data-table-export" class="table table-bordered">
                         <thead>
                             <tr>
-                                <th>Categoria</th>
+                                <th>Descrição</th>
+                                <th>Valor</th>
+                                <th>Tipo de Movimentação</th>
+                                <th>Data</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($categorias as $categoria)
-                                <tr>
-                                    <td>{{ $categoria->descricao }}</td>
-                                    <td><a class="btn btn-info btn-sm btn-icon-actions" href="{{ route('categoria.editar', $categoria->id) }}" title="Editar"><i class="fa fa-edit"></i></a></td>
-                                </tr>
-                            @endforeach
+
                         </tbody>
                     </table>
                 </div>

@@ -15,24 +15,40 @@ class Produto extends Model
 
     protected $fillable = [
        'produto',
-       'valorProduto',
-       'categoria_id',
-       'barCode',
-       'arquivo'
+       'valorCompra',
+       'margem',
+       'valorVenda',
+       'codigo'
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($model) {
+            if (empty($model->codigo)) {
+                $model->codigo = self::gerarCodigoUnico();
+            }
+        });
+    }
+
+    protected static function gerarCodigoUnico(): int
+    {
+        do {
+            $codigo = random_int(100000, 999999);
+        } while (self::where('codigo', $codigo)->exists());
+
+        return $codigo;
+    }
 
     public function getListProdutos(){
         return DB::table('produtos')
-            ->join('categoria', 'produtos.categoria_id','=','categoria.id')
-            ->select('produtos.*', 'categoria.descricao as descricaoCategoria')
+            ->select('produtos.*')
             ->get();
     }
 
     public function getProdutosBarcode($barcode) {
         return DB::table('produtos')
-            ->join('categoria', 'produtos.categoria_id','=','categoria.id')
-            ->select('produtos.*', 'categoria.descricao as descricaoCategoria')
-            ->whereNone(['produtos.barCode', 'produtos.produto', 'produtos.valorProduto'], $barcode)
+            ->select('produtos.*')
+            ->whereNone(['produtos.produto', 'produtos.valorProduto'], $barcode)
             ->get();
     }
 }

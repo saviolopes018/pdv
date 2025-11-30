@@ -60,23 +60,24 @@
                         class="{{ request()->routeIs('clientes.listagem') || request()->routeIs('clientes.cadastro') ? 'active' : '' }}">
                         <a href="{{ route('clientes.listagem') }}"> <i class="menu-icon fa fa-users"></i>Clientes</a>
                     </li>
-                    {{-- <li class="menu-item-has-children dropdown active">
+                    <li class="menu-item-has-children dropdown
+                    {{
+                    request()->routeIs('financeiro.contas-pagar.listagem') ||
+                    request()->routeIs('financeiro.contas-pagar.registrar') ? 'active' : ''
+                    }}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                             aria-expanded="false"> <i class="menu-icon fa fa-dollar"></i>Financeiro</a>
                         <ul class="sub-menu children dropdown-menu">
-                            <li><i class="fa fa-pencil"></i><a href="{{ route('financeiro.lancamento.listagem') }}"></a></li>
-                            <li><i class="fa fa-bank"></i><a href="#">Contas Bancárias</a></li>
+                            <li><i class="fa fa-pencil"></i><a href="{{ route('financeiro.contas-pagar.listagem') }}">Contas a Pagar</a></li>
+                            <li><i class="fa fa-pencil"></i><a href="{{ route('financeiro.contas-receber.listagem') }}">Contas a Receber</a></li>
                         </ul>
-                    </li> --}}
-                    <li
+                    </li>
+                    {{-- <li
                         class="{{ request()->routeIs('financeiro.listagem') || request()->routeIs('financeiro.registrar') ? 'active' : '' }}">
                         <a href="{{ route('financeiro.listagem') }}"> <i
                                 class="menu-icon fa fa-money-bill-1-wave"></i>Financeiro</a>
                     </li>
-                    <li
-                        class="{{ request()->routeIs('categoria.listagem') || request()->routeIs('categoria.adicionar') ? 'active' : '' }}">
-                        <a href="{{ route('categoria.listagem') }}"> <i class="menu-icon fa fa-list"></i>Categorias</a>
-                    </li>
+                     --}}
                     <li
                         class="{{ request()->routeIs('produto.listagem') || request()->routeIs('produto.adicionar') ? 'active' : '' }}">
                         <a href="{{ route('produto.listagem') }}"> <i class="menu-icon fa fa-dolly"></i>Produtos</a>

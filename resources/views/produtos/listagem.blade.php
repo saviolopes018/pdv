@@ -24,17 +24,15 @@
                 </div>
             @endif
             <div class="card">
-                <div class="card-header">
-                    <strong class="card-title">#</strong>
-                </div>
                 <div class="card-body">
                     <table id="bootstrap-data-table-export" class="table table-bordered">
                         <thead>
                             <tr>
                                 <th>Produto</th>
-                                <th>Valor</th>
-                                <th>Categoria</th>
-                                <th>Arquivo</th>
+                                <th>Valor de Compra</th>
+                                <th>Margem</th>
+                                <th>Valor de Venda</th>
+                                <th>Código</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
@@ -42,13 +40,10 @@
                             @foreach ($listProdutos as $produto)
                                 <tr>
                                     <td>{{ $produto->produto }}</td>
-                                    <td>R$ {{ number_format((float) str_replace(['.', ','], ['', '.'], $produto->valorProduto), 2, ',', '.') }}</td>
-                                    <td>{{ $produto->descricaoCategoria }}</td>
-                                    <td>
-                                        @if ($produto->arquivo)
-                                            <a class="btn btn-warning btn-sm btn-icon-actions" href="{{ Storage::url($produto->arquivo) }}" target="_blank" title="Ver Arquivo"><i class="fa fa-magnifying-glass"></i></a>
-                                        @endif
-                                    </td>
+                                    <td>R$ {{ number_format($produto->valorCompra, 2, ',', '.') }}</td>
+                                    <td>{{ $produto->margem }}%</td>
+                                    <td>R$ {{ number_format($produto->valorVenda, 2, ',', '.') }}</td>
+                                    <td>{{ $produto->codigo }}</td>
                                     <td>
                                         <a class="btn btn-info btn-sm btn-icon-actions" href="{{ route('produto.editar', $produto->id) }}" title="Editar"><i class="fa fa-edit"></i></a>
                                     </td>

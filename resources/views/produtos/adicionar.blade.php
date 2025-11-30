@@ -41,10 +41,11 @@
                         obrigatórios.</p>
                 </div>
                 <div class="card-body card-block">
-                    <form id="stepperForm" method="POST" action="{{ route('produto.salvar') }}" enctype="multipart/form-data">
+                    <form id="stepperForm" method="POST" action="{{ route('produto.salvar') }}"
+                        enctype="multipart/form-data">
                         @csrf
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="produto" class="form-control-label">Produto <span
                                             class="span-required">*</span></label>
@@ -52,39 +53,29 @@
                                         autocomplete="off">
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="valorProduto" class="form-control-label">Valor (R$) <span
+                                    <label for="valorCompra" class="form-control-label">Valor de Compra (R$) <span
                                             class="span-required">*</span></label>
-                                    <input type="text" id="valorProduto" name="valorProduto" class="form-control"
+                                    <input type="text" id="valorCompra" name="valorCompra" class="form-control"
                                         autocomplete="off">
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="categoria_id" class="form-control-label">Categoria <span
+                                    <label for="margem" class="form-control-label">Margem (%) <span
                                             class="span-required">*</span></label>
-                                    <select name="categoria_id" id="categoria_id" class="form-control">
-                                        <option value="">Selecione</option>
-                                        @foreach ($listCategorias as $categoria)
-                                            <option value="{{ $categoria->id }}">{{ $categoria->descricao }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="barCode" class="form-control-label">Código de Barras</label>
-                                    <input type="text" id="barCode" name="barCode" class="form-control"
+                                    <input type="text" id="margem" name="margem" class="form-control"
                                         autocomplete="off">
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <label for="arquivo" class="form-label">Arquivo <span
-                                        style="color:rgb(160, 158, 158)">(Nota Fiscal, Cupom Fiscal)</span></label>
-                                <input class="form-control-file" type="file" id="arquivo" name="arquivo">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="valorVenda" class="form-control-label">Valor de Venda (R$) <span
+                                            class="span-required">*</span></label>
+                                    <input type="text" id="valorVenda" name="valorVenda" class="form-control"
+                                        autocomplete="off" readonly>
+                                </div>
                             </div>
                         </div>
                         <div class="row pull-right">
@@ -104,13 +95,23 @@
     </div>
 @endsection
 @push('scripts')
-<script>
-    document.getElementById('valorProduto').addEventListener('input', function(e) {
+    <script>
+        document.getElementById('valorCompra').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é número
             value = (value / 100).toFixed(2) + '';
             value = value.replace(".", ",");
             value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
             e.target.value = value;
         });
-</script>
+
+        $('#margem').on('keyup', function() {
+            const margem = parseFloat($(this).val()) || 0;
+            const valor = parseFloat($("#valorCompra").val()) || 0;
+            const total = (valor * margem) / 100 + valor;
+
+            console.log(margem)
+
+            $("#valorVenda").val(total.toFixed(2).replace('.', ','));
+        });
+    </script>
 @endpush

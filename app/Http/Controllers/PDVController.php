@@ -8,6 +8,7 @@ use App\Models\Produto;
 use App\Models\FormaPagamento;
 use App\Models\Venda;
 use App\Models\VendaPagamento;
+use App\Models\Estoque;
 use Carbon\Carbon;
 
 class PDVController extends Controller
@@ -32,8 +33,7 @@ class PDVController extends Controller
         ]);
     }
 
-    public function add(Request $request)
-    {
+    public function add(Request $request){
         $id       = $request->input('id');
         $name     = $request->input('name');
         $price    = floatval($request->input('price'));
@@ -63,8 +63,7 @@ class PDVController extends Controller
         ]);
     }
 
-    public function remove(Request $request)
-    {
+    public function remove(Request $request){
         $id   = $request->input('id');
         $cart = $request->session()->get('cart', []);
 
@@ -79,8 +78,7 @@ class PDVController extends Controller
         ]);
     }
 
-    public function clear(Request $request)
-    {
+    public function clear(Request $request){
         $request->session()->forget('cart');
 
         return response()->json([
@@ -89,13 +87,47 @@ class PDVController extends Controller
         ]);
     }
 
-    public function finalize(Request $request)
-    {
+    public function finalize(Request $request, Estoque $estoque){
         $cart = $request->session()->get('cart');
         $splitPayment = filter_var($request->all()['splitPayment'], FILTER_VALIDATE_BOOLEAN);
         $vendaPagamento;
+        $produtos = [];
+        $venda;
+        foreach($cart as $c) {
+            $qtdEstoque = $estoque->getTotalEstoqueByProduto($c['id']);
+            if($qtdEstoque < $c['quantity']){
+                $produtos[] = $c['name'];
+            }
+        }
+
+        if(isset($produtos) && count($produtos) > 0){
+            return response()->json([
+                'success' => false,
+                'message'   => 'Estoque insuficiente para o(s) produto(s):',
+                'produtosSemEstoque'   => $produtos,
+            ]);
+        }
+
+        foreach($cart as $c) {
+            $venda = Venda::create([
+                'produto_id' => $c['id'],
+                'quantidade' => $c['quantity'],
+                'valorUnidade' => $c['price'],
+                'valorTotal' => $c['subtotal'],
+                'dataVenda' => new Carbon()
+            ]);
+
+            $estoqueBanco = $estoque->getEstoqueByProduto($c['id']);
+            $novaQuantidade = $estoqueBanco->quantidade - $c['quantity'];
+            $estoqueBancoNovo = Estoque::find($estoqueBanco->id);
+            $estoqueBancoNovo->update([
+                'quantidade' => $novaQuantidade
+            ]);
+        }
+
         if($splitPayment){
             $vendaPagamento = VendaPagamento::create([
+                'venda_id' => $venda->id,
                 'forma_pagamento_id_primaria' => $request->all()['methods'][0],
                 'valor_venda_primaria' => $request->all()['amounts'][0],
                 'pagamentoDividido' => $request->all()['splitPayment'],
@@ -105,21 +137,11 @@ class PDVController extends Controller
             ]);
          }else {
             $vendaPagamento = VendaPagamento::create([
+                'venda_id' => $venda->id,
                 'forma_pagamento_id_primaria' => $request->all()['methods'][0],
                 'valor_venda_primaria' => $request->all()['amounts'][0],
                 'pagamentoDividido' => $splitPayment
             ]);
-        }
-        foreach($cart as $c) {
-            $venda = Venda::create([
-                'produto_id' => $c['id'],
-                'venda_pagamento_id' => $vendaPagamento->id,
-                'quantidade' => $c['quantity'],
-                'valorUnidade' => $c['price'],
-                'valorTotal' => $c['subtotal'],
-                'dataVenda' => new Carbon()
-            ]);
-
         }
 
         $request->session()->forget('cart');

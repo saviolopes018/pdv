@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('produtos', function (Blueprint $table) {
             $table->id();
             $table->string('produto');
-            $table->string('valorProduto');
-            $table->foreignId('categoria_id');
-            $table->string('arquivo')->nullable();
-            $table->string('barCode')->nullable();
+            $table->string('valorCompra');
+            $table->string('margem');
+            $table->string('valorVenda');
+            $table->unsignedBigInteger('codigo')->unique();
             $table->timestamps();
         });
     }

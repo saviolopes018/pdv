@@ -21,6 +21,11 @@
                             Venda finalizada com sucesso!
                         </div>
                     </div>
+                    <div class="col-lg-12">
+                        <div class="alert alert-danger text-center mb-0 alert-estoque-vazio" role="alert">
+
+                        </div>
+                    </div>
                 </section>
             </div>
 
@@ -45,7 +50,8 @@
             </div>
         </div>
         <footer class="footer">
-            <a href="https://b8lab.com.br/" style="text-decoration: none; color: darkgrey" target="_blank">Desenvolvido com 💜 pela B8 Lab</a>
+            <a href="https://b8lab.com.br/" style="text-decoration: none; color: darkgrey" target="_blank">Desenvolvido com
+                💜 pela B8 Lab</a>
         </footer>
     </div>
 
@@ -153,6 +159,7 @@
                 const input = document.getElementById('buscarProduto');
                 $('.alert-sem-produtos').hide();
                 $('.alert-venda-finalizada').hide();
+                $('.alert-estoque-vazio').hide();
 
                 // Quando o scanner “digitar” e emular ENTER:
                 input.addEventListener('keyup', e => {
@@ -165,7 +172,7 @@
                         } else {
                             $('.pdv-products.row .pdv-product[name="produtos"]').closest('.col').remove();
                         }
-                    }else if(e.key === 'Backspace'){
+                    } else if (e.key === 'Backspace') {
                         $('.pdv-products.row .pdv-product[name="produtos"]').closest('.col').remove();
                     }
                 });
@@ -225,8 +232,7 @@
                                         .text(produto.produto);
 
                                     const priceText = 'R$ ' +
-                                        parseFloat(produto.valorProduto)
-                                        .toFixed(2)
+                                        produto.valorVenda
                                         .replace('.', ',');
 
                                     const $price = $('<p>')
@@ -247,7 +253,7 @@
                                             data: {
                                                 id: produto.id,
                                                 name: produto.produto,
-                                                price: produto.valorProduto,
+                                                price: produto.valorVenda,
                                                 quantity: 1,
                                                 _token: "{{ csrf_token() }}"
                                             },
@@ -445,7 +451,6 @@
 
                     const itens = $('.tableListProdutos tbody tr td');
 
-                    // Exemplo de envio ao servidor (você pode adaptar conforme a sua API)
                     $.post('/cart/finalize', {
                             methods,
                             amounts,
@@ -458,6 +463,14 @@
                                 loadCart();
                                 $('.pdv-products.row .pdv-product[name="produtos"]').closest('.col').remove();
                                 $('.alert-venda-finalizada').show();
+                            } else {
+                                console.log(json);
+                                paymentModal.hide();
+                                $('.alert-estoque-vazio').append(json.message);
+                                json.produtosSemEstoque.forEach(produto => {
+                                    $('.alert-estoque-vazio').append(`<div> - ${produto}</div>`);
+                                });
+                                $('.alert-estoque-vazio').show();
                             }
                         });
                 });

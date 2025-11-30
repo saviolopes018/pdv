@@ -6,18 +6,15 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('venda', function (Blueprint $table) {
+        Schema::create('contas_receber', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('produto_id');
-            $table->integer('quantidade');
-            $table->string('valorUnidade');
-            $table->string('valorTotal');
-            $table->date('dataVenda');
+            $table->foreignId('cliente_id');
+            $table->string('descricao');
+            $table->string('valor');
+            $table->date('dataVencimento');
+            $table->integer('recebido')->default(0);
             $table->timestamps();
         });
     }
@@ -27,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('venda');
+        Schema::dropIfExists('contas_receber');
     }
 };

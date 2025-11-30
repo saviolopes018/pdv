@@ -16,8 +16,7 @@ class ProdutoController extends Controller
     }
 
     public function adicionar() {
-        $listCategorias = Categoria::get();
-        return view('produtos.adicionar', ['listCategorias' => $listCategorias]);
+        return view('produtos.adicionar');
     }
 
     public function editar(Request $request){
@@ -29,22 +28,16 @@ class ProdutoController extends Controller
     public function salvar(Request $request) {
         $request->validate([
             'produto' => 'required',
-            'valorProduto' => 'required',
-            'categoria_id' => 'required',
+            'valorCompra' => 'required',
+            'margem' => 'required',
+            'valorVenda' => 'required',
         ]);
-
-        $path = null;
-
-        if ($request->hasFile('arquivo')) {
-            $path = $request->file('arquivo')->store('uploads', 'public');
-            $request->arquivo = $path;
-        }
 
         $produto = Produto::create([
             'produto' => $request->produto,
-            'valorProduto' => $request->valorProduto,
-            'categoria_id' => $request->categoria_id,
-            'arquivo' => $path
+            'valorCompra' => str_replace(['.', ','], ['', '.'],$request->valorCompra),
+            'margem' => $request->margem,
+            'valorVenda' => str_replace(['.', ','], ['', '.'],$request->valorVenda),
         ]);
 
         if(!$produto) {
@@ -58,28 +51,15 @@ class ProdutoController extends Controller
         $request->validate([
             'produto' => 'required',
             'valorProduto' => 'required',
-            'categoria_id' => 'required',
         ]);
 
         $produto = Produto::find($idProduto);
 
-        $path;
-
-        if ($request->hasFile('arquivo')) {
-            if ($produto->arquivo) {
-                Storage::disk('public')->delete($produto->arquivo);
-            }
-            $path = $request->file('arquivo')->store('uploads', 'public');
-            $request->arquivo = $path;
-        }else {
-           $path =  $produto->arquivo;
-        }
-
         $produto->update([
             'produto' => $request->produto,
-            'valorProduto' => $request->valorProduto,
-            'categoria_id' => $request->categoria_id,
-            'arquivo' => $path
+            'valorCompra' => str_replace(['.', ','], ['', '.'],$request->valorCompra),
+            'margem' => $request->margem,
+            'valorVenda' => str_replace(['.', ','], ['', '.'],$request->valorVenda),
         ]);
 
         if(!$produto) {
@@ -96,8 +76,7 @@ class ProdutoController extends Controller
         // return $produto;
         $term = $request->query('search');
 
-        $produtos = Produto::where('barCode', $term)
-        ->orWhere('produto', 'like', "%{$term}%")
+        $produtos = Produto::where('codigo', $term)
         ->get();
 
         return response()->json($produtos);
