@@ -77,6 +77,7 @@ class ProdutoController extends Controller
         $term = $request->query('search');
 
         $produtos = Produto::where('codigo', $term)
+        ->orWhere('produto', 'like', "%{$term}%")
         ->get();
 
         return response()->json($produtos);
