@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('produtos', function (Blueprint $table) {
             $table->id();
             $table->string('produto');
-            $table->string('valorCompra');
+            $table->decimal('valorCompra', 15, 2);
             $table->string('margem');
-            $table->string('valorVenda');
+            $table->decimal('valorVenda', 15, 2);
             $table->unsignedBigInteger('codigo')->unique();
             $table->timestamps();
         });

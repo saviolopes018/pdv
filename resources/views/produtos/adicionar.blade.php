@@ -105,13 +105,37 @@
         });
 
         $('#margem').on('keyup', function() {
-            const margem = parseFloat($(this).val()) || 0;
-            const valor = parseFloat($("#valorCompra").val()) || 0;
+            const margem = parseBrNumber($(this).val()) || 0;
+            const valor = parseBrNumber($("#valorCompra").val()) || 0;
             const total = (valor * margem) / 100 + valor;
 
-            console.log(margem)
-
-            $("#valorVenda").val(total.toFixed(2).replace('.', ','));
+            $("#valorVenda").val(formatBrNumber(total));
         });
+
+        $('#valorCompra').on('keyup', function() {
+            const margem = parseBrNumber($("#margem").val()) || 0;
+            if(margem != 0) {
+                const valor = parseBrNumber($("#valorCompra").val()) || 0;
+                const total = (valor * margem) / 100 + valor;
+                $("#valorVenda").val(formatBrNumber(total));
+            }
+        });
+
+        function parseBrNumber(value) {
+            if (!value) return 0;
+
+            // remove pontos de milhar e troca vírgula por ponto
+            value = value.replace(/\./g, '').replace(',', '.');
+
+            const number = parseFloat(value);
+            return isNaN(number) ? 0 : number;
+        }
+
+        function formatBrNumber(value) {
+            return value.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
     </script>
 @endpush

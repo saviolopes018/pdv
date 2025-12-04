@@ -21,8 +21,7 @@ class ProdutoController extends Controller
 
     public function editar(Request $request){
         $produto = Produto::find($request->idProduto);
-        $listCategorias = Categoria::get();
-        return view('produtos.editar', ['produto'=> $produto, 'listCategorias' => $listCategorias]);
+        return view('produtos.editar', ['produto'=> $produto]);
     }
 
     public function salvar(Request $request) {
@@ -35,9 +34,9 @@ class ProdutoController extends Controller
 
         $produto = Produto::create([
             'produto' => $request->produto,
-            'valorCompra' => str_replace(['.', ','], ['', '.'],$request->valorCompra),
+            'valorCompra' => $request->valorCompra,
             'margem' => $request->margem,
-            'valorVenda' => str_replace(['.', ','], ['', '.'],$request->valorVenda),
+            'valorVenda' => $request->valorVenda,
         ]);
 
         if(!$produto) {
@@ -50,17 +49,20 @@ class ProdutoController extends Controller
     public function atualizar(Request $request, $idProduto) {
         $request->validate([
             'produto' => 'required',
-            'valorProduto' => 'required',
+            'valorCompra' => 'required',
+            'margem' => 'required',
+            'valorVenda' => 'required',
         ]);
 
         $produto = Produto::find($idProduto);
-
         $produto->update([
             'produto' => $request->produto,
-            'valorCompra' => str_replace(['.', ','], ['', '.'],$request->valorCompra),
+            'valorCompra' => $request->valorCompra,
             'margem' => $request->margem,
-            'valorVenda' => str_replace(['.', ','], ['', '.'],$request->valorVenda),
+            'valorVenda' => $request->valorVenda,
         ]);
+
+        //dd($request->all(), $produto);
 
         if(!$produto) {
             return back()->with('error', 'Erro ao atualizar produto!');

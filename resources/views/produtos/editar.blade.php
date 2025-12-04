@@ -5,7 +5,7 @@
         <div class="col-md-12 mt-3">
             <h2 class="pb-2 display-5">Produtos</h2>
         </div>
-        <div class="col-md-12" style="margin-bottom: 2%;">
+        <div class="col-md-12 bottom-pull-right">
             <div class="d-flex justify-content-end">
                 <a href="{{ route('produto.listagem') }}" class="btn btn-secondary"><i class="fa fa-arrow-left"></i>&nbsp;
                     Voltar</a>
@@ -43,55 +43,40 @@
                 <div class="card-body card-block">
                     <form id="stepperForm" method="POST" action="{{ route('produto.atualizar', $produto->id) }}"
                         enctype="multipart/form-data">
-                        @method('PUT')
                         @csrf
+                        @method('PUT')
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="produto" class="form-control-label">Produto <span
                                             class="span-required">*</span></label>
                                     <input type="text" id="produto" name="produto" class="form-control"
-                                        autocomplete="off" value="{{ $produto->produto }}"">
+                                        autocomplete="off" value="{{ $produto->produto }}">
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="valorProduto" class="form-control-label">Valor (R$) <span
+                                    <label for="valorCompra" class="form-control-label">Valor de Compra (R$) <span
                                             class="span-required">*</span></label>
-                                    <input type="text" id="valorProduto" name="valorProduto" class="form-control"
-                                        autocomplete="off" value="{{ $produto->valorProduto }}">
+                                    <input type="text" id="valorCompra" name="valorCompra" class="form-control"
+                                        autocomplete="off" value="{{ number_format($produto->valorCompra, 2, ',', '.') }}">
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="categoria_id" class="form-control-label">Categoria <span
+                                    <label for="margem" class="form-control-label">Margem (%) <span
                                             class="span-required">*</span></label>
-                                    <select name="categoria_id" id="categoria_id" class="form-control">
-                                        <option value="">Selecione</option>
-                                        @foreach ($listCategorias as $categoria)
-                                            @if ($produto->categoria_id == $categoria->id)
-                                                <option selected value="{{ $categoria->id }}">{{ $categoria->descricao }}
-                                                </option>
-                                            @else
-                                                <option value="{{ $categoria->id }}">{{ $categoria->descricao }}</option>
-                                            @endif
-                                        @endforeach
-                                    </select>
+                                    <input type="text" id="margem" name="margem" class="form-control"
+                                        autocomplete="off" value="{{ $produto->margem }}">
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="barCode" class="form-control-label">Código de Barras</label>
-                                    <input type="text" id="barCode" name="barCode" class="form-control"
-                                        autocomplete="off" value="{{ $produto->barCode }}">
+                                    <label for="valorVenda" class="form-control-label">Valor de Venda (R$) <span
+                                            class="span-required">*</span></label>
+                                    <input type="text" id="valorVenda" name="valorVenda" class="form-control"
+                                        autocomplete="off" readonly value="{{ number_format($produto->valorVenda, 2, ',', '.') }}">
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="arquivo" class="form-label">Arquivo <span
-                                        style="color:rgb(160, 158, 158)">(Nota Fiscal, Cupom Fiscal)</span></label><br>
-                                <input class="form-control-file" type="file" id="arquivo" name="arquivo">
                             </div>
                         </div>
                         <div class="row pull-right">
@@ -111,13 +96,53 @@
     </div>
 @endsection
 @push('scripts')
-<script>
-    document.getElementById('valorProduto').addEventListener('input', function(e) {
+    <script>
+        document.getElementById('valorCompra').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é número
             value = (value / 100).toFixed(2) + '';
             value = value.replace(".", ",");
             value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
             e.target.value = value;
         });
-</script>
+
+        $('#margem').on('keyup', function() {
+            const margem = $(this).val() || 0;
+            console.log(margem)
+            const valor = parseBrNumber($("#valorCompra").val()) || 0;
+            console.log(valor)
+            const total = (valor * margem) / 100 + valor;
+            console.log(total)
+
+            $("#valorVenda").val(formatBrNumber(total));
+        });
+
+        $('#valorCompra').on('keyup', function() {
+            const margem = $("#margem").val() || 0;
+            if(margem != 0) {
+                const valor = parseBrNumber($("#valorCompra").val()) || 0;
+                const total = (valor * margem) / 100 + valor;
+                $("#valorVenda").val(formatBrNumber(total));
+            }
+        });
+
+        function parseBrNumber(value) {
+            if (!value) return 0;
+
+             value = value.toString().trim();
+
+            if (value.includes(',')) {
+                value = value.replace(/\./g, '').replace(',', '.');
+            }
+
+            const number = parseFloat(value);
+            return isNaN(number) ? 0 : number;
+        }
+
+        function formatBrNumber(value) {
+            return value.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+    </script>
 @endpush

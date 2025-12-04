@@ -41,8 +41,10 @@ class PDVController extends Controller
 
         $cart = $request->session()->get('cart', []);
 
+        //dd($cart, $cart[$id]['quantity'] += $quantity);
+
         if (isset($cart[$id])) {
-            $cart[$id]['quantity'] += $quantity;
+            $cart[$id]['quantity'] = $cart[$id]['quantity'] + $quantity;
             $cart[$id]['subtotal'] = $cart[$id]['quantity'] * $price;
         } else {
             $cart[$id] = [

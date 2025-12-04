@@ -5,6 +5,19 @@ if (! function_exists('getLabelAtivoPorCodigo')) {
     }
 }
 
+if (! function_exists('brToDecimal')) {
+    function brToDecimal(?string $value): ?float{
+        if ($value === null || $value === '') {
+            return null;
+        }
+        $value = str_replace('.', '', $value);
+
+        $value = str_replace(',', '.', $value);
+
+        return (float) $value;
+    }
+}
+
 if (! function_exists('getMes')) {
     function getMes($mes) {
         switch ((string) $mes) {

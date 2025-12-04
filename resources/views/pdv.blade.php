@@ -87,6 +87,18 @@
                         </select>
                     </div>
 
+                    {{-- <div class="row g-3 d-none" id="formaPagamentoDinheiro">
+                        <div class="col-md-6">
+                            <label for="valorRecebido" class="form-label">Valor recebido</label>
+                            <input type="text" id="valorRecebido" class="form-control" inputmode="decimal">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="troco" class="form-label">Troco</label>
+                            <input type="text" id="troco" class="form-control" disabled placeholder="0.00"
+                                inputmode="decimal">
+                        </div>
+                    </div> --}}
+
                     <div class="mb-3 d-none" id="secondPaymentContainer">
                         <label for="paymentMethod2" class="form-label">Segunda Forma de Pagamento</label>
                         <select id="paymentMethod2" class="form-select">
@@ -116,264 +128,356 @@
                 </div>
             </div>
         </div>
-    @endsection
+    </div>
 
-    @push('styles')
-    @endpush
+    <div class="modal fade" id="produtoModal" tabindex="-1" aria-labelledby="produtoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="produtoModalLabel">Adicione a quantidade</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="cart-preview mb-3"></div>
 
-    @push('scripts')
-        <script defer>
-            let total = 0;
+                    <div class="d-flex justify-content-between mb-3">
+                        <input type="number" class="form-control" name="quantidadeProduto" id="quantidadeProduto"
+                            placeholder="Digite a quantidade">
+                    </div>
+                    <div class="modal-footer">
+                        {{-- <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar <i
+                                class="fa fa-close"></i></button> --}}
+                        <button type="button" class="btn btn-success" id="btnAddCarrinho">Adicionar ao carrinho <i
+                                class="fa fa-cart-shopping"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
 
-            function updateCartUI({
-                item,
-                total
-            }) {
-                // Exemplo: adiciona item na lista de itens
-                const list = document.querySelector('.pdv-cart-items');
-                // Se já existir linha para este item, atualize quantidade/subtotal
-                let row = list.querySelector(`[data-id="${item.id}"]`);
-                if (!row) {
-                    row = document.createElement('div');
-                    row.className = 'cart-item d-flex justify-content-between';
-                    row.setAttribute('data-id', item.id);
-                    row.innerHTML = `
+@push('styles')
+@endpush
+
+@push('scripts')
+    <script defer>
+        let total = 0;
+
+        function updateCartUI({
+            item,
+            total
+        }) {
+            // Exemplo: adiciona item na lista de itens
+            const list = document.querySelector('.pdv-cart-items');
+            // Se já existir linha para este item, atualize quantidade/subtotal
+            let row = list.querySelector(`[data-id="${item.id}"]`);
+            if (!row) {
+                row = document.createElement('div');
+                row.className = 'cart-item d-flex justify-content-between';
+                row.setAttribute('data-id', item.id);
+                row.innerHTML = `
                         <span>${item.name} × ${item.quantity}</span>
                         <span>R$ ${item.subtotal.toFixed(2).replace('.', ',')}</span>
                         `;
-                    list.append(row);
-                } else {
-                    row.innerHTML = `
+                list.append(row);
+            } else {
+                row.innerHTML = `
                         <span>${item.name} × ${item.quantity}</span>
                         <span>R$ ${item.subtotal.toFixed(2).replace('.', ',')}</span>
                         `;
-                }
-
-                // Atualiza total
-                document.querySelector('#pdvTotal').textContent =
-                    'R$ ' + total.toFixed(2).replace('.', ',');
             }
 
-            document.addEventListener('DOMContentLoaded', () => {
-                loadCart();
-                const input = document.getElementById('buscarProduto');
-                $('.alert-sem-produtos').hide();
-                $('.alert-venda-finalizada').hide();
-                $('.alert-estoque-vazio').hide();
+            // Atualiza total
+            document.querySelector('#pdvTotal').textContent =
+                'R$ ' + total.toFixed(2).replace('.', ',');
+        }
 
-                // Quando o scanner “digitar” e emular ENTER:
-                input.addEventListener('keyup', e => {
-                    $('.alert-venda-finalizada').hide();
-                    $('.alert-sem-produtos').hide();
-                    if (e.key === 'Enter') {
-                        const search = input.value.trim();
-                        if (search) {
-                            buscarProduto(search);
-                        } else {
-                            $('.pdv-products.row .pdv-product[name="produtos"]').closest('.col').remove();
-                        }
-                    } else if (e.key === 'Backspace') {
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCart();
+            const input = document.getElementById('buscarProduto');
+            $('.alert-sem-produtos').hide();
+            $('.alert-venda-finalizada').hide();
+            $('.alert-estoque-vazio').hide();
+
+            // Quando o scanner “digitar” e emular ENTER:
+            input.addEventListener('keyup', e => {
+                $('.alert-venda-finalizada').hide();
+                $('.alert-sem-produtos').hide();
+                if (e.key === 'Enter') {
+                    const search = input.value.trim();
+                    if (search) {
+                        buscarProduto(search);
+                    } else {
                         $('.pdv-products.row .pdv-product[name="produtos"]').closest('.col').remove();
                     }
-                });
+                } else if (e.key === 'Backspace') {
+                    $('.pdv-products.row .pdv-product[name="produtos"]').closest('.col').remove();
+                }
+            });
 
-                function showAlert(msg, type = 'info') {
-                    const $a = $(`
+            function showAlert(msg, type = 'info') {
+                const $a = $(`
                     <div class="alert alert-${type} alert-dismissible fade show" role="alert">
                     ${msg}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 `);
-                    // insere no topo do container
-                    $('.container').prepend($a);
-                    setTimeout(() => $a.alert('close'), 5000);
-                }
+                // insere no topo do container
+                $('.container').prepend($a);
+                setTimeout(() => $a.alert('close'), 5000);
+            }
 
-                function buscarProduto(search) {
-                    $.ajax({
-                        url: "{{ route('produto.buscar.pdv') }}",
-                        method: 'GET',
-                        data: {
-                            search: search
-                        },
-                        dataType: 'json',
-                        success: function(data) {
-                            loadCart();
-                            $('.alert-sem-produtos').hide();
+            function buscarProduto(search) {
+                $.ajax({
+                    url: "{{ route('produto.buscar.pdv') }}",
+                    method: 'GET',
+                    data: {
+                        search: search
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        loadCart();
+                        $('.alert-sem-produtos').hide();
 
+                        if (data.length === 0) {
+                            // só adiciona UMA vez
                             if (data.length === 0) {
-                                // só adiciona UMA vez
-                                if (data.length === 0) {
 
-                                    $('.alert-sem-produtos').show();
-                                }
-                                return;
+                                $('.alert-sem-produtos').show();
                             }
+                            return;
+                        }
 
-                            $.each(data, function(i, produto) {
-                                if ($('.pdv-product[data-id="' + produto.id + '"]').length === 0) {
+                        $.each(data, function(i, produto) {
+                            if ($('.pdv-product[data-id="' + produto.id + '"]').length === 0) {
 
-                                    const $col = $('<div>').addClass('col');
+                                const $col = $('<div>').addClass('col');
 
-                                    // Cria o card com as classes e atributos
-                                    const $card = $('<div>')
-                                        .addClass('card shadow-sm text-center pdv-product h-100')
-                                        .attr('data-name', produto.produto)
-                                        .attr('data-price', produto.valorProduto)
-                                        .attr('data-id', produto.id)
-                                        .attr('name', 'produtos');
+                                // Cria o card com as classes e atributos
+                                const $card = $('<div>')
+                                    .addClass('card shadow-sm text-center pdv-product h-100')
+                                    .attr('data-name', produto.produto)
+                                    .attr('data-price', produto.valorVenda)
+                                    .attr('data-id', produto.id)
+                                    .attr('name', 'produtos');
 
-                                    // Cria o card-body
-                                    const $cardBody = $('<div>').addClass('card-body');
+                                // Cria o card-body
+                                const $cardBody = $('<div>').addClass('card-body');
 
-                                    // Título e texto do preço já formatado em R$
-                                    const $title = $('<h6>')
-                                        .addClass('card-title')
-                                        .text(produto.produto);
+                                // Título e texto do preço já formatado em R$
+                                const $title = $('<h6>')
+                                    .addClass('card-title')
+                                    .text(produto.produto);
 
-                                    const priceText = 'R$ ' +
-                                        produto.valorVenda
-                                        .replace('.', ',');
+                                const priceText = 'R$ ' +
+                                    formatBrNumber(parseBrNumber(produto.valorVenda));
 
-                                    const $price = $('<p>')
-                                        .addClass('card-text')
-                                        .text(priceText);
+                                const $price = $('<p>')
+                                    .addClass('card-text')
+                                    .text(priceText);
 
-                                    // Monta tudo junto
-                                    $cardBody.append($title, $price);
-                                    $card.append($cardBody);
-                                    $col.append($card);
+                                // Monta tudo junto
+                                $cardBody.append($title, $price);
+                                $card.append($cardBody);
+                                $col.append($card);
 
-                                    $('.pdv-products.row').append($col);
+                                $('.pdv-products.row').append($col);
 
-                                    $card.on('click', function() {
+                                $card.on('click', function() {
+
+                                    const produtoModal = new bootstrap.Modal($(
+                                        '#produtoModal')[0]);
+
+                                    const nome = produto.produto;
+                                    const preco = produto.valorVenda;
+
+                                    console.log(nome, preco);
+
+                                    const $preview = $('#produtoModal .cart-preview')
+                                        .empty();
+                                    const $produto = $(`
+                                            <span>${nome} - R$ ${formatBrNumber(parseBrNumber(preco))}</span>
+                                        `);
+                                    $preview.append($produto);
+
+                                    produtoModal.show();
+
+                                    $('#btnAddCarrinho').off('click').on('click', function() {
                                         $.ajax({
                                             url: '/cart/add',
                                             method: 'POST',
                                             data: {
                                                 id: produto.id,
                                                 name: produto.produto,
-                                                price: produto.valorVenda,
-                                                quantity: 1,
+                                                price: produto
+                                                    .valorVenda,
+                                                quantity: $(
+                                                    '#quantidadeProduto'
+                                                    ).val(),
                                                 _token: "{{ csrf_token() }}"
                                             },
                                             success: function(json) {
                                                 if (json.success) {
+                                                    produtoModal.hide();
+                                                    $(
+                                                    '#quantidadeProduto'
+                                                    ).val('')
                                                     updateCartUI(json);
                                                 }
                                             }
                                         });
                                     });
-                                }
-                            });
-                        },
-                        error: function(xhr, status) {
-                            if (status !== 'abort') console.error('Erro na busca');
-                        }
-                    });
+                                });
+                            }
+                        });
+                    },
+                    error: function(xhr, status) {
+                        if (status !== 'abort') console.error('Erro na busca');
+                    }
+                });
+            }
+
+            function parseBrNumber(value) {
+                if (!value) return 0;
+
+                value = value.toString().trim();
+
+                if (value.includes(',')) {
+                    value = value.replace(/\./g, '').replace(',', '.');
                 }
 
-                function updateCartUI({
-                    item,
-                    total
-                }) {
-                    const $list = $('.pdv-cart-items');
+                const number = parseFloat(value);
+                return isNaN(number) ? 0 : number;
+            }
 
-                    let $linha = $list.find(`[data-id="${item.id}"]`);
-                    if (!$linha.length) {
-                        $linha = $('<div>')
-                            .addClass('cart-item d-flex justify-content-between align-items-center')
-                            .attr('data-id', item.id);
-                        $list.append($linha);
-                    }
+            function formatBrNumber(value) {
+                return value.toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
 
-                    // Monta o HTML mostrando nome × quantidade e subtotal
-                    $linha.html(`
+            function updateCartUI({
+                item,
+                total
+            }) {
+                const $list = $('.pdv-cart-items');
+
+                let $linha = $list.find(`[data-id="${item.id}"]`);
+                if (!$linha.length) {
+                    $linha = $('<div>')
+                        .addClass('cart-item d-flex justify-content-between align-items-center')
+                        .attr('data-id', item.id);
+                    $list.append($linha);
+                }
+
+                // Monta o HTML mostrando nome × quantidade e subtotal
+                $linha.html(`
                     <div>
                                 <strong>${item.name}</strong>
                                 <span class="text-muted">× ${item.quantity}</span>
                             </div>
                             <div class="d-flex align-items-center">
                                 <div class="d-flex align-items-center">
-                                <span class="me-3">R$ ${item.subtotal.toFixed(2).replace('.', ',')}</span>
+                                <span class="me-3">R$ ${formatBrNumber(parseBrNumber(item.subtotal))}</span>
                                 <button class="btn btn-sm btn-danger btn-remove-item" data-id="${item.id}">&times;</button>
                             </div>
                 `);
-                    // Atualiza o total geral
-                    $('#pdvTotal').text('R$ ' + total.toFixed(2).replace('.', ','));
+                // Atualiza o total geral
+                $('#pdvTotal').text('R$ ' + formatBrNumber(parseBrNumber(total)));
+            }
+        });
+
+        function parseBrNumber(value) {
+                if (!value) return 0;
+
+                value = value.toString().trim();
+
+                if (value.includes(',')) {
+                    value = value.replace(/\./g, '').replace(',', '.');
                 }
-            });
 
-            function loadCart() {
-                $.get('/pdv', function(json) {
-                    const $list = $('.pdv-cart-items').empty(); // limpa HTML antigo
+                const number = parseFloat(value);
+                return isNaN(number) ? 0 : number;
+            }
 
-                    // Renderiza cada item a partir do JSON
-                    json.items.forEach(item => {
-                        const $linha = $('<div>')
-                            .addClass('cart-item d-flex justify-content-between align-items-center')
-                            .attr('data-id', item.id)
-                            .html(`
+            function formatBrNumber(value) {
+                return value.toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+
+        function loadCart() {
+            $.get('/pdv', function(json) {
+                const $list = $('.pdv-cart-items').empty(); // limpa HTML antigo
+
+                // Renderiza cada item a partir do JSON
+                json.items.forEach(item => {
+                    const $linha = $('<div>')
+                        .addClass('cart-item d-flex justify-content-between align-items-center')
+                        .attr('data-id', item.id)
+                        .html(`
                             <div>
                                 <strong>${item.name}</strong>
                                 <span class="text-muted">× ${item.quantity}</span>
                             </div>
                             <div class="d-flex align-items-center">
                                 <div class="d-flex align-items-center">
-                                <span class="me-3">R$ ${item.subtotal.toFixed(2).replace('.', ',')}</span>
+                                <span class="me-3">R$ ${formatBrNumber(parseBrNumber(item.subtotal))}</span>
                                 <button class="btn btn-sm btn-danger btn-remove-item" data-id="${item.id}">&times;</button>
                             </div>
                             `);
 
-                        $list.append($linha);
-                    });
-
-                    // Atualiza total
-                    $('#pdvTotal').text('R$ ' + json.total.toFixed(2).replace('.', ','));
+                    $list.append($linha);
                 });
 
-                $('.pdv-cart-items').on('click', '.btn-remove-item', function() {
-                    const id = $(this).data('id');
-                    $.ajax({
-                        url: '/cart/remove',
-                        method: 'POST',
-                        data: {
-                            id: id,
-                            _token: "{{ csrf_token() }}"
-                        },
-                        success: function(json) {
-                            if (json.success) {
-                                loadCart(json);
-                            }
+                // Atualiza total
+                $('#pdvTotal').text('R$ ' + formatBrNumber(parseBrNumber(json.total)));
+            });
+
+            $('.pdv-cart-items').on('click', '.btn-remove-item', function() {
+                const id = $(this).data('id');
+                $.ajax({
+                    url: '/cart/remove',
+                    method: 'POST',
+                    data: {
+                        id: id,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(json) {
+                        if (json.success) {
+                            loadCart(json);
                         }
-                    });
+                    }
                 });
+            });
 
-                $('.btn-cancelar').on('click', function() {
-                    $.ajax({
-                        url: '/cart/clear',
-                        method: 'POST',
-                        data: {
-                            _token: "{{ csrf_token() }}"
-                        },
-                        success: function(json) {
-                            if (json.success) {
-                                loadCart(json);
-                            }
+            $('.btn-cancelar').on('click', function() {
+                $.ajax({
+                    url: '/cart/clear',
+                    method: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(json) {
+                        if (json.success) {
+                            loadCart(json);
                         }
-                    });
+                    }
                 });
+            });
 
-                const paymentModal = new bootstrap.Modal($('#paymentModal')[0]);
+            const paymentModal = new bootstrap.Modal($('#paymentModal')[0]);
 
-                $('#btnPagamento').on('click', function() {
-                    const $itens = $('.pdv-cart-items .cart-item');
-                    if (!$itens.length) {
-                        return showAlert('Selecione ao menos um produto antes de pagar!', 'warning');
-                    } else {
-                        // Monta preview dentro do modal
-                        const $preview = $('#paymentModal .cart-preview').empty();
-                        const $table = $(`
+            $('#btnPagamento').on('click', function() {
+                const $itens = $('.pdv-cart-items .cart-item');
+                if (!$itens.length) {
+                    return showAlert('Selecione ao menos um produto antes de pagar!', 'warning');
+                } else {
+                    // Monta preview dentro do modal
+                    const $preview = $('#paymentModal .cart-preview').empty();
+                    const $table = $(`
                     <table class="table table-sm tableListProdutos">
                     <thead>
                         <tr><th>Produto</th><th>Quantidade</th><th>Subtotal</th></tr>
@@ -381,206 +485,238 @@
                     <tbody></tbody>
                     </table>
                 `);
-                        let total = 0;
+                    let total = 0;
 
-                        $itens.each(function() {
-                            const $row = $(this);
-                            const name = $row.find('strong').text();
-                            const qtyMatch = $row.find('.text-muted').text().match(/×\s*(\d+)/);
-                            const qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
-                            const subtotal = parseFloat(
-                                $row.find('span').eq(1).text().replace(/[R$\s.]/g, '').replace(',', '.')
-                            );
-                            total += subtotal;
+                    $itens.each(function() {
+                        const $row = $(this);
+                        const name = $row.find('strong').text();
+                        const qtyMatch = $row.find('.text-muted').text().match(/×\s*(\d+)/);
+                        const qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
+                        const subtotal = parseFloat(
+                            $row.find('span').eq(1).text().replace(/[R$\s.]/g, '').replace(',', '.')
+                        );
+                        total += subtotal;
 
-                            $table.find('tbody').append(`
+                        $table.find('tbody').append(`
                     <tr>
                         <td>${name}</td>
                         <td>${qty}</td>
-                        <td>R$ ${subtotal.toFixed(2).replace('.', ',')}</td>
+                        <td>R$ ${formatBrNumber(parseBrNumber(subtotal))}</td>
                     </tr>
                     `);
-                        });
+                    });
 
-                        $preview.append($table);
-                        $('#paymentModalTotal').text('R$ ' + total.toFixed(2).replace('.', ','));
+                    $preview.append($table);
+                    $('#paymentModalTotal').text('R$ ' + formatBrNumber(parseBrNumber(total)));
 
-                        // Abre o modal
-                        paymentModal.show();
-                    }
+                    // Abre o modal
+                    paymentModal.show();
+                }
+            });
+
+            function parseBrNumber(value) {
+                if (!value) return 0;
+
+                value = value.toString().trim();
+
+                if (value.includes(',')) {
+                    value = value.replace(/\./g, '').replace(',', '.');
+                }
+
+                const number = parseFloat(value);
+                return isNaN(number) ? 0 : number;
+            }
+
+            function formatBrNumber(value) {
+                return value.toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
                 });
+            }
 
-                // 4) Finalizar venda: lê os valores e métodos
-                $('#btnFinalizeSale').on('click', function() {
-                    if (!$('.pdv-cart-items .cart-item').length) {
-                        return showAlert('Selecione ao menos um produto antes de pagar!', 'warning');
-                    }
+            // 4) Finalizar venda: lê os valores e métodos
+            $('#btnFinalizeSale').on('click', function() {
+                if (!$('.pdv-cart-items .cart-item').length) {
+                    return showAlert('Selecione ao menos um produto antes de pagar!', 'warning');
+                }
+
+                const method1 = $('#paymentMethod').val();
+                const amount1 = parseFloat($('#paymentAmount1').val()) || parseFloat(
+                    $('#paymentModalTotal').text()
+                    .replace(/[R$\s]/g, '')
+                    .replace(',', '.')
+                ) || 0;
+
+                let methods = [method1],
+                    amounts = [amount1],
+                    splitPayment = false;
+
+                if ($('#splitPayment').is(':checked')) {
+                    splitPayment = true;
+                    methods = [];
+                    amounts = [];
 
                     const method1 = $('#paymentMethod').val();
-                    const amount1 = parseFloat($('#paymentAmount1').val()) || parseFloat(
-                        $('#paymentModalTotal').text()
+                    const amount1 = parseFloat(
+                        $('#paymentAmount1').val()
                         .replace(/[R$\s]/g, '')
                         .replace(',', '.')
                     ) || 0;
 
-                    let methods = [method1],
-                        amounts = [amount1],
-                        splitPayment = false;
+                    const method2 = $('#paymentMethod2').val();
+                    const amount2 = parseFloat($('#paymentAmount2').val()
+                        .replace(/[R$\s]/g, '')
+                        .replace(',', '.')
+                    ) || 0;
 
-                    if ($('#splitPayment').is(':checked')) {
-                        splitPayment = true;
-                        methods = [];
-                        amounts = [];
+                    methods.push(method1, method2);
+                    amounts.push(amount1, amount2);
+                }
 
-                        const method1 = $('#paymentMethod').val();
-                        const amount1 = parseFloat(
-                            $('#paymentAmount1').val()
-                            .replace(/[R$\s]/g, '')
-                            .replace(',', '.')
-                        ) || 0;
+                const itens = $('.tableListProdutos tbody tr td');
 
-                        const method2 = $('#paymentMethod2').val();
-                        const amount2 = parseFloat($('#paymentAmount2').val()
-                            .replace(/[R$\s]/g, '')
-                            .replace(',', '.')
-                        ) || 0;
+                $.post('/cart/finalize', {
+                        methods,
+                        amounts,
+                        splitPayment,
+                        _token: "{{ csrf_token() }}"
+                    })
+                    .done(function(json) {
+                        if (json.success) {
+                            paymentModal.hide();
+                            loadCart();
+                            $('.pdv-products.row .pdv-product[name="produtos"]').closest('.col').remove();
+                            $('.alert-venda-finalizada').show();
+                        } else {
+                            console.log(json);
+                            paymentModal.hide();
+                            $('.alert-estoque-vazio').append(json.message);
+                            json.produtosSemEstoque.forEach(produto => {
+                                $('.alert-estoque-vazio').append(`<div> - ${produto}</div>`);
+                            });
+                            $('.alert-estoque-vazio').show();
+                        }
+                    });
+            });
 
-                        methods.push(method1, method2);
-                        amounts.push(amount1, amount2);
-                    }
-
-                    const itens = $('.tableListProdutos tbody tr td');
-
-                    $.post('/cart/finalize', {
-                            methods,
-                            amounts,
-                            splitPayment,
-                            _token: "{{ csrf_token() }}"
-                        })
-                        .done(function(json) {
-                            if (json.success) {
-                                paymentModal.hide();
-                                loadCart();
-                                $('.pdv-products.row .pdv-product[name="produtos"]').closest('.col').remove();
-                                $('.alert-venda-finalizada').show();
-                            } else {
-                                console.log(json);
-                                paymentModal.hide();
-                                $('.alert-estoque-vazio').append(json.message);
-                                json.produtosSemEstoque.forEach(produto => {
-                                    $('.alert-estoque-vazio').append(`<div> - ${produto}</div>`);
-                                });
-                                $('.alert-estoque-vazio').show();
-                            }
-                        });
-                });
-
-                function showAlert(msg, type = 'info') {
-                    const $a = $(`
+            function showAlert(msg, type = 'info') {
+                const $a = $(`
                 <div class="alert alert-${type} alert-dismissible fade show" role="alert">
                 ${msg}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             `);
-                    // insere no topo do container
-                    $('.container').prepend($a);
-                    setTimeout(() => $a.alert('close'), 5000);
-                }
-
-                $('#splitPayment').on('change', function() {
-                    const checked = this.checked;
-                    $('#secondPaymentContainer').toggleClass('d-none', !checked);
-                    $('#splitValuesContainer').toggleClass('d-none', !checked);
-
-                    if (checked) {
-                        // Pega o total (texto "R$ 123,45") e converte para número 123.45
-                        const total = parseReal($('#paymentModalTotal').text());
-
-                        // Inicializa valores: tudo em 1, zero em 2
-                        $('#paymentAmount1').val(formatReal(total));
-                        $('#paymentAmount2').val(formatReal(0));
-                    } else {
-                        // Limpa os campos se desmarcar
-                        $('#paymentAmount1, #paymentAmount2').val('');
-                    }
-                });
-
-                $('#paymentAmount1').off('input').on('keyup', function() {
-                    // 1) Pega só dígitos
-                    let v = this.value.replace(/\D/g, '');
-
-                    // 2) Transforma em número com duas casas
-                    v = (v / 100).toFixed(2);
-
-                    // 3) Troca ponto por vírgula
-                    v = v.toString().replace('.', ',');
-
-                    // 4) Coloca ponto a cada milhar
-                    v = v.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
-                    // 5) Prefixa com R$
-                    this.value = 'R$ ' + v;
-
-                    // 6) Recalcula o segundo valor
-                    const val1 = parseFloat(v.replace(/\./g, '').replace(',', '.')) || 0;
-                    const total = parseFloat(
-                        $('#paymentModalTotal').text()
-                        .replace(/[R$ \.]/g, '') // remove R$, ponto e NBSP
-                        .replace(',', '.')
-                    ) || 0;
-                    const val2 = (total - val1).toFixed(2);
-
-                    // 7) Formata val2 igual
-                    let v2 = val2.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                    $('#paymentAmount2').val('R$ ' + v2);
-                });
-
-                $('#paymentModal').on('hidden.bs.modal', function() {
-                    // Remove a classe que trava o scroll do body
-                    $('body').removeClass('modal-open');
-                    // Remove qualquer backdrop que tenha sobrado no DOM
-                    $('.modal-backdrop').remove();
-                });
-
-                function parseReal(str) {
-                    if (!str) return 0;
-                    return parseFloat(
-                        str
-                        .replace(/\s/g, '') // remove espaços
-                        .replace('R$', '') // remove R$
-                        .replace(/\./g, '') // remove separador de milhares
-                        .replace(',', '.') // vírgula → ponto
-                    ) || 0;
-                }
-
-                // Converte número → "R$ 1.234,56"
-                function formatReal(num) {
-                    return num.toLocaleString('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL'
-                    });
-                }
+                // insere no topo do container
+                $('.container').prepend($a);
+                setTimeout(() => $a.alert('close'), 5000);
             }
 
+            $('#splitPayment').on('change', function() {
+                const checked = this.checked;
+                $('#secondPaymentContainer').toggleClass('d-none', !checked);
+                $('#splitValuesContainer').toggleClass('d-none', !checked);
 
-            document.querySelectorAll('.pdv-product').forEach(item => {
-                item.addEventListener('click', () => {
-                    const name = item.dataset.name;
-                    const price = parseFloat(item.dataset.price);
+                if (checked) {
+                    // Pega o total (texto "R$ 123,45") e converte para número 123.45
+                    const total = parseReal($('#paymentModalTotal').text());
 
-                    total += price;
+                    // Inicializa valores: tudo em 1, zero em 2
+                    $('#paymentAmount1').val(formatReal(total));
+                    $('#paymentAmount2').val(formatReal(0));
+                } else {
+                    // Limpa os campos se desmarcar
+                    $('#paymentAmount1, #paymentAmount2').val('');
+                }
+            });
 
-                    document.querySelector('.pdv-cart-items').insertAdjacentHTML(
-                        'beforeend',
-                        `<div class="cart-item">
+            // $('#paymentMethod').on('change', function() {
+            //     const formaPagamento = $('#paymentMethod :selected').text();
+            //     if(formaPagamento == 'Dinheiro') {
+            //         console.log('alo')
+
+            //         $('#formaPagamentoDinheiro').toggleClass('d-none');
+            //     }else {
+            //         $('#formaPagamentoDinheiro').toggleClass('d-none');
+            //     }
+            //     console.log(formaPagamento)
+            // });
+
+            $('#paymentAmount1').off('input').on('keyup', function() {
+                // 1) Pega só dígitos
+                let v = this.value.replace(/\D/g, '');
+
+                // 2) Transforma em número com duas casas
+                v = (v / 100).toFixed(2);
+
+                // 3) Troca ponto por vírgula
+                v = v.toString().replace('.', ',');
+
+                // 4) Coloca ponto a cada milhar
+                v = v.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+                // 5) Prefixa com R$
+                this.value = 'R$ ' + v;
+
+                // 6) Recalcula o segundo valor
+                const val1 = parseFloat(v.replace(/\./g, '').replace(',', '.')) || 0;
+                const total = parseFloat(
+                    $('#paymentModalTotal').text()
+                    .replace(/[R$ \.]/g, '') // remove R$, ponto e NBSP
+                    .replace(',', '.')
+                ) || 0;
+                const val2 = (total - val1).toFixed(2);
+
+                // 7) Formata val2 igual
+                let v2 = val2.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                $('#paymentAmount2').val('R$ ' + v2);
+            });
+
+            $('#paymentModal').on('hidden.bs.modal', function() {
+                // Remove a classe que trava o scroll do body
+                $('body').removeClass('modal-open');
+                // Remove qualquer backdrop que tenha sobrado no DOM
+                $('.modal-backdrop').remove();
+            });
+
+            function parseReal(str) {
+                if (!str) return 0;
+                return parseFloat(
+                    str
+                    .replace(/\s/g, '') // remove espaços
+                    .replace('R$', '') // remove R$
+                    .replace(/\./g, '') // remove separador de milhares
+                    .replace(',', '.') // vírgula → ponto
+                ) || 0;
+            }
+
+            // Converte número → "R$ 1.234,56"
+            function formatReal(num) {
+                return num.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                });
+            }
+        }
+
+
+        document.querySelectorAll('.pdv-product').forEach(item => {
+            item.addEventListener('click', () => {
+                const name = item.dataset.name;
+                const price = parseFloat(item.dataset.price);
+
+                total += price;
+
+                document.querySelector('.pdv-cart-items').insertAdjacentHTML(
+                    'beforeend',
+                    `<div class="cart-item">
                     <span>${name}</span>
                     <span>R$ ${price.toFixed(2).replace('.', ',')}</span>
                 </div>`
-                    );
+                );
 
-                    document.querySelector('#pdvTotal').textContent = 'R$ ' + total.toFixed(2).replace('.',
-                        ',');
-                });
+                document.querySelector('#pdvTotal').textContent = 'R$ ' + total.toFixed(2).replace('.',
+                    ',');
             });
-        </script>
-    @endpush
+        });
+    </script>
+@endpush

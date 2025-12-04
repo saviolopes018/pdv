@@ -21,6 +21,21 @@ class Produto extends Model
        'codigo'
     ];
 
+    protected $casts = [
+        'valorCompra' => 'decimal:2',
+        'valorVenda'  => 'decimal:2',
+    ];
+
+    public function setValorCompraAttribute($value)
+    {
+        $this->attributes['valorCompra'] = brToDecimal($value);
+    }
+
+    public function setValorVendaAttribute($value)
+    {
+        $this->attributes['valorVenda'] = brToDecimal($value);
+    }
+
     protected static function booted()
     {
         static::creating(function ($model) {
