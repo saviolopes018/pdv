@@ -535,7 +535,7 @@
             }
 
             // 4) Finalizar venda: lê os valores e métodos
-            $('#btnFinalizeSale').on('click', function() {
+            $('#btnFinalizeSale').off('click').on('click', function() {
                 if (!$('.pdv-cart-items .cart-item').length) {
                     return showAlert('Selecione ao menos um produto antes de pagar!', 'warning');
                 }
